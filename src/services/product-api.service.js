@@ -1,10 +1,36 @@
 import axios from "axios";
-const PRODUCTRAPI_URL = "https://51.250.69.184:8080/v1/";
+const PRODUCTRAPI_URL = "http://51.250.69.184:8080/v1/";
+//const PRODUCTRAPI_URL = "http://127.0.0.1:8080/v1/";
 axios.defaults.withCredentials = true
 const sessionid = "sessionid"
 
 class ProductApiService {
 
+   //----------------------------------------------------------------PUT---------------------------------------------------------------
+
+   UpdateSize (id, name, categoryId) {
+    return axios //класс с методами:
+    .put(PRODUCTRAPI_URL + "size", {id, name, categoryId})
+    .then((response)=>{
+      return response.data;
+    }); 
+  }
+
+  UpdateBrand (id, name, description, file, fileExtension) {
+    return axios //класс с методами:
+    .put(PRODUCTRAPI_URL + "brand", {id, name, description, file, fileExtension})
+    .then((response)=>{
+      return response.data;
+    }); 
+  }
+
+  UpdateCategory (id, name, level, parentId) {
+    return axios //класс с методами:
+    .put(PRODUCTRAPI_URL + "category", {id, name, level, parentId})
+    .then((response)=>{
+      return response.data;
+    }); 
+  }
 
   //----------------------------------------------------------------GET---------------------------------------------------------------
 
@@ -26,10 +52,18 @@ class ProductApiService {
     }); 
   }
 
-  GetCategory (number, limit, name, level) {
+  GetCategory (isAll, number, limit, name, level) {
    
     return axios //класс с методами:
-    .get(PRODUCTRAPI_URL + "category", {params:{"page.number": number, "page.limit": limit, name, level }})
+    .get(PRODUCTRAPI_URL + "category", {params:{"page.number": number, "page.limit": limit, "page.isAll": isAll,  name, level }})
+    .then((response)=>{
+      return response.data;
+    }); 
+  }
+  GetCategoryById (id) {
+   
+    return axios //класс с методами:
+    .get(PRODUCTRAPI_URL + "category/" + id)
     .then((response)=>{
       return response.data;
     }); 
@@ -93,7 +127,6 @@ class ProductApiService {
   }
 
   GetListColor () {
-   
     return axios //класс с методами:
 	.get(PRODUCTRAPI_URL + "color/list")
   .then((response)=>{
@@ -102,7 +135,6 @@ class ProductApiService {
   }
 
   GetListProducts  (number, limit, name, categoryId, brandId) {
-   
     return axios //класс с методами:
 	.get(PRODUCTRAPI_URL + "product/list", {params:{"page.number": number, "page.limit": limit, name, categoryId, brandId }})
   .then((response)=>{
@@ -112,7 +144,6 @@ class ProductApiService {
 
 
   GetListBrand () {
-   
     return axios //класс с методами:
     .get(PRODUCTRAPI_URL + "brand/list")
     .then((response)=>{

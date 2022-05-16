@@ -30,15 +30,6 @@ export default function NaviBar() {
 	const logoutHandler = () => {
 		dispath(logout());
 	}
-	const siginHandler = () => {
-		navigate("/signin");
-	}
-	const singupHandler = () => {
-		navigate("/signup");
-	}
-	const profileHandler = () => {
-		navigate("/profile");
-	}
 
 	return (
 	<>
@@ -48,14 +39,24 @@ export default function NaviBar() {
 				<Navbar.Brand><Link to="/" className="BrandLink" id="dropdown-title">Wearell admin</Link></Navbar.Brand>
 				<Navbar.Toggle aria-controls="responsive-navbar-nav"/>
 				<Navbar.Collapse id="responsive-navbar-nav">
+					{userApiState.isLoggedIn &&(
+					<Nav className="me-auto" >
+						<Nav.Link><Link to="/users">Пользователи</Link></Nav.Link>
+						<Nav.Link><Link to="/roles">Роли</Link></Nav.Link>
+						<Nav.Link><Link to="/categories">Категории</Link></Nav.Link>
+						<Nav.Link><Link to="/brands">Бренды</Link></Nav.Link>
+						<Nav.Link><Link to="/sizes">Размеры</Link></Nav.Link>
+					</Nav>)}
+
 					{!userApiState.isLoggedIn &&(
 					<Nav>
 						<Nav.Link><Link to="/login">Войти</Link></Nav.Link>	
 					</Nav>)}
 					{userApiState.isLoggedIn &&(
 					<Nav>
-						<Nav.Link><Link to="/logunt">Выйти</Link></Nav.Link>	
+						<Nav.Link><Link to="/" onClick={logoutHandler}>Выйти</Link></Nav.Link>	
 					</Nav>)}
+
 				</Navbar.Collapse>
 			</Container>
 		</Navbar>

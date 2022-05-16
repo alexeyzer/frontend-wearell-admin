@@ -53,7 +53,7 @@ class Login extends Component {
 		
 		return (
 			<>
-			{isLoggedIn && <Navigate replace to="/main" />}
+			{isLoggedIn && <Navigate replace to="/" />}
 			<Container style={{width: "70vh"}} className="mt-3" >
 				{message && (
               <Form.Group>

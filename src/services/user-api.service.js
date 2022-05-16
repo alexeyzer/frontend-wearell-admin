@@ -1,5 +1,6 @@
 import axios from "axios";
-const USERAPI_URL = "http://62.84.114.46:8079/v1/";
+//const USERAPI_URL = "http://62.84.114.46:8080/v1/";
+const USERAPI_URL = "http://127.0.0.1:8080/v1/";
 const sessionid = "sessionid"
 
 class UserApiService {
@@ -13,6 +14,64 @@ class UserApiService {
       axios.defaults.headers.common[sessionid] = session;
     }
   }
+
+
+
+
+  listRoles() {
+    this.buildHeader();
+    return axios
+      .get(USERAPI_URL + "role/list")
+      .then((response) => {
+        return response.data;
+      });
+  }
+  GetRole(id) {
+    this.buildHeader();
+    return axios
+      .get(USERAPI_URL + "role", {params:{id}})
+      .then((response) => {
+        return response.data;
+      });
+  }
+  DeleteRole (id) {
+    return axios //класс с методами:
+    .delete(USERAPI_URL + "role", {params:{id}})
+    .then((response)=>{
+      return response.data;
+    }); 
+  }
+  CreateRole (name, description) {
+    return axios //класс с методами:
+    .post(USERAPI_URL + "role", {name, description})
+    .then((response)=>{
+      return response.data;
+    });
+  }
+  UpdateRole(id, name, description) {
+    return axios //класс с методами:
+    .put(USERAPI_URL + "role", {id, name, description})
+    .then((response)=>{
+      return response.data;
+    });
+  }
+  ListUsers() {
+    return axios //класс с методами:
+    .get(USERAPI_URL + "user/list")
+    .then((response)=>{
+      return response.data;
+    });
+  }
+  GetUser(id) {
+    this.buildHeader();
+    return axios
+      .get(USERAPI_URL + "user", {params:{id}})
+      .then((response) => {
+        return response.data;
+      });
+  }
+
+  
 
   login(email, password) {
     this.buildHeader();
