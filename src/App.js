@@ -18,6 +18,8 @@ import Roles from './pages/Roles'
 import Role from './pages/Role'
 import Users from './pages/Users'
 import User from './pages/User'
+import Products from './pages/Products'
+import Product from './pages/Product'
 
 function App() {
   return (
@@ -38,6 +40,8 @@ function App() {
         <Route path="/roles/:id" element={<Role/>}></Route>
         <Route path="/users" element={<Users/>}></Route>
         <Route path="/users/:id" element={<User/>}></Route>
+        <Route path="/products" element={<Products/>}></Route>
+        <Route path="/products/:id" element={<Product/>}></Route>
       </Routes>
     </Router>
     </>

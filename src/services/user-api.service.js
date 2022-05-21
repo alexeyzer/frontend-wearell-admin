@@ -1,7 +1,10 @@
 import axios from "axios";
-//const USERAPI_URL = "http://62.84.114.46:8080/v1/";
-const USERAPI_URL = "http://127.0.0.1:8080/v1/";
+const USERAPI_URL = "http://62.84.114.46:8080/v1/";
+//const USERAPI_URL = "http://127.0.0.1:8080/v1/";
 const sessionid = "sessionid"
+axios.defaults.withCredentials = true
+
+
 
 class UserApiService {
   buildHeader() {
@@ -15,9 +18,13 @@ class UserApiService {
     }
   }
 
-
-
-
+  ListOrders(userId) {
+    return axios //класс с методами:
+    .get(USERAPI_URL + "order/list/by-user-id", {params:{userId}})
+    .then((response)=>{
+      return response.data;
+    });
+  }
   listRoles() {
     this.buildHeader();
     return axios
@@ -66,6 +73,22 @@ class UserApiService {
     this.buildHeader();
     return axios
       .get(USERAPI_URL + "user", {params:{id}})
+      .then((response) => {
+        return response.data;
+      });
+  }
+  CreateUserRole(userId, roleId) {
+    this.buildHeader();
+    return axios
+      .post(USERAPI_URL + "user-role", {userId, roleId})
+      .then((response) => {
+        return response.data;
+      });
+  }
+  DeleteUserRole(id) {
+    this.buildHeader();
+    return axios
+      .delete(USERAPI_URL + "user-role", {params:{id}})
       .then((response) => {
         return response.data;
       });

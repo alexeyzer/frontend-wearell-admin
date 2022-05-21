@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import {Form, Button, Container, Col, Row, ListGroup, Table} from 'react-bootstrap';
-import ProductApiService from "../services/product-api.service";
+import {Form, Button, Container, Alert} from 'react-bootstrap';
 import { connect } from 'react-redux'
-import { useNavigate, Navigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, Navigate, useParams } from 'react-router-dom';
 import userApiService from '../services/user-api.service';
 
 
@@ -13,12 +12,29 @@ class Role extends Component {
 		id: "",
 		name: "",
 		description: "",
+		//alert
+		alertVariant: "",
+		alertText: "",
 	  };
 	  this.onChangeName = this.onChangeName.bind(this);
 	  this.onChangeDescription = this.onChangeDescription.bind(this);
 	  this.handleUpdate = this.handleUpdate.bind(this);
 	  this.handleCreate = this.handleCreate.bind(this);
 	  this.handleDelete = this.handleDelete.bind(this);
+	  this.handleCloseAlert = this.handleCloseAlert.bind(this);
+	  this.handleCreateAlert = this.handleCreateAlert.bind(this);
+	}
+	handleCreateAlert(text, variant) {
+		this.setState({
+			alertText: text,
+			alertVariant: variant,
+		});
+		window.scrollTo(0, 0);
+	}
+	handleCloseAlert() {
+		this.setState({
+			alertText: "",
+		});
 	}
 	onChangeName(e) {
 		this.setState({
@@ -38,7 +54,7 @@ class Role extends Component {
 				return Promise.resolve();
 			},
 			(error) => {
-				this.props.navigate("/roles");
+				this.handleCreateAlert("Произошла ошибка при удалении роли: " + error, "danger");
 				console.log('ошибка DeleteBrand',error)
 				return Promise.reject();
 			});
@@ -49,9 +65,11 @@ class Role extends Component {
 		
 		userApiService.UpdateRole(this.state.id, this.state.name, this.state.description).then(
 			() => {
+				this.handleCreateAlert("Информация о роли успешна обновлена", "success");
 				return Promise.resolve();
 			},
 			(error) => {
+				this.handleCreateAlert("Произошла ошибка при обновлении роли", "danger");
 				console.log('ошибка UpdateRole',error)
 				return Promise.reject();
 			});
@@ -65,9 +83,11 @@ class Role extends Component {
 					id: response.id,
 				});
 				this.props.navigate("/roles/" + response.id);
+				this.handleCreateAlert("Роль успешна создана", "success");
 				return Promise.resolve();
 			},
 			(error) => {
+				this.handleCreateAlert("Произошла ошибка при создании роли: "+ error, "danger");
 				console.log('ошибка CreateRole',error)
 				return Promise.reject();
 			});
@@ -75,7 +95,7 @@ class Role extends Component {
 	}
 	componentDidMount(){
 		const { id } = this.props.params;
-		if (id != "new") {
+		if (id !== "new") {
 			userApiService.GetRole(id).then(
 				(response) => {
 					this.setState({
@@ -93,7 +113,7 @@ class Role extends Component {
 		}
 	}
 	render() {
-		const {isLoggedIn, message } = this.props;
+		const {isLoggedIn, isAdmin} = this.props;
 		
 		const BuildButtons = () => {
 			const {id} = this.props.params;
@@ -118,9 +138,24 @@ class Role extends Component {
 			}
 		}
 
+		const buildAlter = () => {
+			if (this.state.alertText !== "") {
+				return (
+					<>
+						<Alert variant={this.state.alertVariant} onClose={this.handleCloseAlert} dismissible>
+						{this.state.alertText}
+						</Alert>
+					  </>
+				);
+			}
+			return (null);
+		}
+
 		return (
 			<>
+				{!isAdmin && <Navigate replace to="/roles" />}
 				{!isLoggedIn && <Navigate replace to="/login" />}
+				{buildAlter()}
 				<Container style={{width: "70vh"}} className="mt-3" >
 					<Form>
 					<Form.Group className="mb-3" controlId="formBasicEmail">
@@ -146,10 +181,11 @@ class Role extends Component {
 
 
 function mapStateToProps(state) {
-	const {isLoggedIn}  = state.userAPIreducer;
+	const {isLoggedIn, isAdmin}  = state.userAPIreducer;
 	const {message}  = state.message;
 	return {
 	  isLoggedIn,
+	  isAdmin,
 	  message
 	};
 }

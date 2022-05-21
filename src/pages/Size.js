@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import {Form, Button, Container, Col, Row, ListGroup, Table} from 'react-bootstrap';
+import {Form, Button, Container, Alert} from 'react-bootstrap';
 import ProductApiService from "../services/product-api.service";
 import { connect } from 'react-redux'
-import { useNavigate, Navigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, Navigate, useParams } from 'react-router-dom';
 
 
 class Size extends Component {
@@ -11,23 +11,32 @@ class Size extends Component {
 	  this.state = {
 		id: "",
 		name: "",
-		categoryId: "",
-		categories: [],
+		//alert
+		alertVariant: "",
+		alertText: "",
 	  };
 	  this.onChangeName = this.onChangeName.bind(this);
-	  this.onChangecategoryID = this.onChangecategoryID.bind(this);
 	  this.handleUpdate = this.handleUpdate.bind(this);
 	  this.handleCreate = this.handleCreate.bind(this);
 	  this.handleDelete = this.handleDelete.bind(this);
+	  this.handleCloseAlert = this.handleCloseAlert.bind(this);
+	  this.handleCreateAlert = this.handleCreateAlert.bind(this);
+	}
+	handleCreateAlert(text, variant) {
+		this.setState({
+			alertText: text,
+			alertVariant: variant,
+		});
+		window.scrollTo(0, 0);
+	}
+	handleCloseAlert() {
+		this.setState({
+			alertText: "",
+		});
 	}
 	onChangeName(e) {
 		this.setState({
 			name: e.target.value,
-		});
-	}
-	onChangecategoryID(e) {
-		this.setState({
-			categoryId: e.target.value,
 		});
 	}
 	handleDelete(e) {
@@ -46,19 +55,19 @@ class Size extends Component {
 	}
 	handleUpdate(e) {
 		e.preventDefault(); //предотвращение поведения по умолчанию.
-		ProductApiService.UpdateSize(this.state.id, this.state.name, this.state.categoryId).then(
+		ProductApiService.UpdateSize(this.state.id, this.state.name).then(
 			() => {
 				return Promise.resolve();
 			},
 			(error) => {
-				console.log('ошибка DeleteSize',error)
+				console.log('ошибка UpdateSize',error)
 				return Promise.reject();
 			});
 	  
 	}
 	handleCreate(e) {
 		e.preventDefault(); //предотвращение поведения по умолчанию.
-		ProductApiService.PostSize(this.state.name, this.state.categoryId).then(
+		ProductApiService.PostSize(this.state.name).then(
 			(response) => {
 				this.setState({
 					id: response.id,
@@ -74,13 +83,12 @@ class Size extends Component {
 	}
 	componentDidMount(){
 		const { id } = this.props.params;
-		if (id != "new") {
+		if (id !== "new") {
 			ProductApiService.GetSize(id).then(
 				(response) => {
 					this.setState({
 						id: response.id,
 						name: response.name,
-						categoryId: response.categoryId,
 						});
 	
 					return Promise.resolve();
@@ -90,26 +98,9 @@ class Size extends Component {
 					return Promise.reject();
 				});
 		}
-		ProductApiService.GetCategory(true).then(
-			(response) => {
-				this.setState({
-					categories: response.items,
-					});
-				if (this.state.categoryId === "") {
-					this.setState({
-						categoryId: response.items[0].id,
-						});
-				}
-
-				return Promise.resolve();
-			},
-			(error) => {
-				console.log('ошибка GetCategory',error)
-				return Promise.reject();
-			});
 	}
 	render() {
-		const {isLoggedIn, message } = this.props;
+		const {isLoggedIn} = this.props;
 		
 		const BuildButtons = () => {
 			const {id} = this.props.params;
@@ -134,9 +125,23 @@ class Size extends Component {
 			}
 		}
 
+		const buildAlter = () => {
+			if (this.state.alertText !== "") {
+				return (
+					<>
+						<Alert variant={this.state.alertVariant} onClose={this.handleCloseAlert} dismissible>
+						{this.state.alertText}
+						</Alert>
+					  </>
+				);
+			}
+			return (null);
+		}
+
 		return (
 			<>
 				{!isLoggedIn && <Navigate replace to="/login" />}
+				{buildAlter()}
 				<Container style={{width: "70vh"}} className="mt-3" >
 					<Form>
 					<Form.Group className="mb-3" controlId="formBasicEmail">
@@ -147,13 +152,6 @@ class Size extends Component {
 							<Form.Label>Наименование размера</Form.Label>
 							<Form.Control type="text" placeholder="Введите название размера" value={this.state.name} onChange={this.onChangeName}/>
 						</Form.Group>
-						<Form.Select aria-label="Default select example" value={this.state.categoryId} onChange={this.onChangecategoryID}>
-							{this.state.categories.map((item, index) => (
-								<>
-								<option value={item.id}>{item.name}</option>
-								</>)
-							)}
-						</Form.Select>
 						<br />
 						{BuildButtons()}
 					</Form>

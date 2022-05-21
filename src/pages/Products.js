@@ -1,54 +1,57 @@
 import React, { Component } from 'react';
-import {Form, Button, Container, Col, Row, Table} from 'react-bootstrap';
+import {Container, Col, Row, Table} from 'react-bootstrap';
 import { connect } from 'react-redux'
 import { Navigate, Link } from 'react-router-dom';
-import userApiService from '../services/user-api.service';
+import productApiService from '../services/product-api.service';
 
 
-class Users extends Component {
+class Products extends Component {
 	constructor(props) {
 	  super(props);
 	  this.state = {
-		users: [],
+		products: [],
 	  };
 	}
 	componentDidMount(){
-		userApiService.ListUsers().then(
+		productApiService.GetListProducts(true).then(
 			(response) => {
 				this.setState({
-					users: response.users,
+					products: response.products,
 				});
 				return Promise.resolve();
 			},
 			(error) => {
-				console.log('ошибка ListUsers',error)
+				console.log('ошибка GetListProducts',error)
 				return Promise.reject();
 			}
 		)
 	}
 	render() {
-		const { isLoggedIn, message } = this.props;
-		const buildUserItems = () => { 
+		const { isLoggedIn } = this.props;
+		const buildRoleItems = () => { 
 			return (
 			<>
-				<Container><h3>Пользователи</h3></Container>
+				<Container><h3>Товары</h3></Container>
 					<Table>
 						<thead>
 							<tr>
 								<th>ID</th>
-								<th>Почта</th>
-								<th>Телефон</th>
-								<th>Имя</th>
+								<th>Название</th>
+								<th>Описание</th>
+								<th>Цвет</th>
+								<th>Цена</th>
+								<th><Link to="/products/new">Добавить</Link></th>
 							</tr>
 						</thead>
 						<tbody>
-						{this.state.users.map((item, index) => (
+						{this.state.products.map((item, index) => (
 							<> <tr>
 								<td>{item.id}</td>
-								<td>{item.email}</td>
 								<td>{item.name}</td>
-								<td>{item.phone}</td>
-								<td><Link to={"/users/" + item.id}>подробнее</Link></td>
+								<td>{item.description}</td>
+								<td>{item.color}</td>
+								<td>{item.price}</td>
+								<td><Link to={"/products/" + item.id}>редактировать</Link></td>
 							</tr>
 							</>)
 						)}
@@ -63,7 +66,7 @@ class Users extends Component {
 				{!isLoggedIn && <Navigate replace to="/login" />}
 				<Container>
 					<Col>
-						<Row>{buildUserItems()}</Row>
+						<Row>{buildRoleItems()}</Row>
 					</Col>
 				</Container>
 			</>
@@ -81,4 +84,4 @@ function mapStateToProps(state) {
 	};
   }
 
-export default connect(mapStateToProps)(Users);
+export default connect(mapStateToProps)(Products);

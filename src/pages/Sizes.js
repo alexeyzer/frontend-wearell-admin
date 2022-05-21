@@ -29,36 +29,31 @@ class Sizes extends Component {
 	render() {
 		const { isLoggedIn, message } = this.props;
 		const buildSizeItems = () => { 
-			if (this.state.sizes.length ===0) {
-				return <Container><h3 style={{textAlign: "center"}}>Нет информации о размерах</h3></Container>
-			} else {
-				return (
-					<>
-						<Container><h3>Размеры</h3></Container>
-						<Table>
-							<thead>
-								<tr>
-									<th>ID</th>
-									<th>Название</th>
-									<th>Категория</th>
-									<th><Link to="/sizes/new">Добавить</Link></th>
-								</tr>
-							</thead>
-							<tbody>
-							{this.state.sizes.map((item, index) => (
-								<> <tr>
-									<td>{item.id}</td>
-									<td>{item.name}</td>
-									<td>{item.categoryName}</td>
-									<td><Link to={"/sizes/" + item.id}>редактировать</Link></td>
-								</tr>
-								</>)
-							)}
-							</tbody>
-						</Table>
-					</>
-				);
-			}
+			return (
+				<>
+					<Container><h3>Размеры</h3></Container>
+					<Table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Название</th>
+								<th><Link to="/sizes/new">Добавить</Link></th>
+							</tr>
+						</thead>
+						<tbody>
+						{this.state.sizes.map((item, index) => (
+							<> <tr>
+								<td>{item.id}</td>
+								<td>{item.name}</td>
+								<td><Link to={"/sizes/" + item.id}>редактировать</Link></td>
+							</tr>
+							</>)
+						)}
+						</tbody>
+					</Table>
+				</>
+			);
+			
 		}
 		
 		return (

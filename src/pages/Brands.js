@@ -29,36 +29,32 @@ class Brands extends Component {
 	render() {
 		const { isLoggedIn, message } = this.props;
 		const buildBrandItems = () => { 
-			if (this.state.brands.length ===0) {
-				return <Container><h3 style={{textAlign: "center"}}>Нет информации о брендах</h3></Container>
-			} else {
-				return (
-				<>
-					<Container><h3>Бренды</h3></Container>
-						<Table>
-							<thead>
-								<tr>
-									<th>ID</th>
-									<th>Название</th>
-									<th>Описание</th>
-									<th><Link to="/brands/new">Добавить</Link></th>
-								</tr>
-							</thead>
-							<tbody>
-							{this.state.brands.map((item, index) => (
-								<> <tr>
-									<td>{item.id}</td>
-									<td>{item.name}</td>
-									<td>{item.description}</td>
-									<td><Link to={"/brands/" + item.id}>редактировать</Link></td>
-								</tr>
-								</>)
-							)}
-							</tbody>
-						</Table>
-					</>
-				);
-			}
+			return (
+			<>
+				<Container><h3>Бренды</h3></Container>
+					<Table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Название</th>
+								<th>Описание</th>
+								<th><Link to="/brands/new">Добавить</Link></th>
+							</tr>
+						</thead>
+						<tbody>
+						{this.state.brands.map((item, index) => (
+							<> <tr>
+								<td>{item.id}</td>
+								<td>{item.name}</td>
+								<td>{item.description}</td>
+								<td><Link to={"/brands/" + item.id}>редактировать</Link></td>
+							</tr>
+							</>)
+						)}
+						</tbody>
+					</Table>
+				</>
+			);
 		}
 		
 		return (

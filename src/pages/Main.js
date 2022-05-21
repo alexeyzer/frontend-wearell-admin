@@ -54,7 +54,6 @@ class Main extends Component {
 		return (
 			<>
 			{!isLoggedIn && <Navigate replace to="/login" />}
-			
 			</>
 	);
 	}

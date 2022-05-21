@@ -1,5 +1,5 @@
 import React from 'react';
-import {Navbar, Nav, Container, Dropdown, /*Button, ButtonGroup*/} from 'react-bootstrap';
+import {Navbar, Nav, Container} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import {useSelector, useDispatch} from 'react-redux';
 import { logout } from '../actions/user-api.action';
@@ -46,6 +46,7 @@ export default function NaviBar() {
 						<Nav.Link><Link to="/categories">Категории</Link></Nav.Link>
 						<Nav.Link><Link to="/brands">Бренды</Link></Nav.Link>
 						<Nav.Link><Link to="/sizes">Размеры</Link></Nav.Link>
+						<Nav.Link><Link to="/products">Товары</Link></Nav.Link>
 					</Nav>)}
 
 					{!userApiState.isLoggedIn &&(

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import {Form, Button, Container, Col, Row, ListGroup, Table} from 'react-bootstrap';
+import {Form, Button, Container, Alert} from 'react-bootstrap';
 import ProductApiService from "../services/product-api.service";
 import { connect } from 'react-redux'
-import { useNavigate, Navigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, Navigate, useParams } from 'react-router-dom';
 
 
 class Category extends Component {
@@ -13,6 +13,9 @@ class Category extends Component {
 		level: "",
 		parentId: "",
 		categories: [],
+		//alert
+		alertVariant: "",
+		alertText: "",
 	  };
 	  this.onChangeName = this.onChangeName.bind(this);
 	  this.onChangeLevel = this.onChangeLevel.bind(this);
@@ -20,6 +23,20 @@ class Category extends Component {
 	  this.handleUpdate = this.handleUpdate.bind(this);
 	  this.handleCreate = this.handleCreate.bind(this);
 	  this.handleDelete = this.handleDelete.bind(this);
+	  this.handleCloseAlert = this.handleCloseAlert.bind(this);
+	  this.handleCreateAlert = this.handleCreateAlert.bind(this);
+	}
+	handleCreateAlert(text, variant) {
+		this.setState({
+			alertText: text,
+			alertVariant: variant,
+		});
+		window.scrollTo(0, 0);
+	}
+	handleCloseAlert() {
+		this.setState({
+			alertText: "",
+		});
 	}
 	onChangeName(e) {
 		this.setState({
@@ -44,7 +61,7 @@ class Category extends Component {
 				return Promise.resolve();
 			},
 			(error) => {
-				this.props.navigate("/categories");
+				this.handleCreateAlert("Ошибка при удалении категории: "+ error, "danger");
 				console.log('ошибка DeleteCategory',error)
 				return Promise.reject();
 			});
@@ -55,9 +72,11 @@ class Category extends Component {
 		
 		ProductApiService.UpdateCategory(this.state.id, this.state.name, this.state.level, this.state.parentId).then(
 			() => {
+				this.handleCreateAlert("Категория успешна обновлена", "success");
 				return Promise.resolve();
 			},
 			(error) => {
+				this.handleCreateAlert("Ошибка при обновлении категории: "+ error, "danger");
 				console.log('ошибка UpdateBrand',error)
 				return Promise.reject();
 			});
@@ -65,17 +84,19 @@ class Category extends Component {
 	}
 	handleCreate(e) {
 		e.preventDefault(); //предотвращение поведения по умолчанию.
-		if (this.state.parentId != "") {
+		if (this.state.parentId !== "") {
 			ProductApiService.PostCategory(this.state.name, this.state.level, this.state.parentId).then(
 				(response) => {
 					this.setState({
 						id: response.id,
 					});
 					this.props.navigate("/categories/" + response.id);
+					this.handleCreateAlert("Категория успешна создана", "success");
 					return Promise.resolve();
 				},
 				(error) => {
 					console.log('ошибка PostCategory',error)
+					this.handleCreateAlert("Ошибка при создании Категории: "+ error, "danger");
 					return Promise.reject();
 				});
 		} else {
@@ -85,9 +106,11 @@ class Category extends Component {
 						id: response.id,
 					});
 					this.props.navigate("/categories/" + response.id);
+					this.handleCreateAlert("Категория успешна создана", "success");
 					return Promise.resolve();
 				},
 				(error) => {
+					this.handleCreateAlert("Ошибка при создании Категории: "+ error, "danger");
 					console.log('ошибка PostCategory',error)
 					return Promise.reject();
 				});
@@ -97,7 +120,7 @@ class Category extends Component {
 	}
 	componentDidMount(){
 		const { id } = this.props.params;
-		if (id != "new") {
+		if (id !== "new") {
 			ProductApiService.GetCategoryById(id).then(
 				(response) => {
 					this.setState({
@@ -128,7 +151,7 @@ class Category extends Component {
 		)
 	}
 	render() {
-		const {isLoggedIn, message } = this.props;
+		const {isLoggedIn } = this.props;
 		
 		const BuildButtons = () => {
 			const {id} = this.props.params;
@@ -153,9 +176,24 @@ class Category extends Component {
 			}
 		}
 
+		const buildAlter = () => {
+			if (this.state.alertText !== "") {
+				return (
+					<>
+						<Alert variant={this.state.alertVariant} onClose={this.handleCloseAlert} dismissible>
+						{this.state.alertText}
+						</Alert>
+					  </>
+				);
+			}
+			return (null);
+		}
+
+
 		return (
 			<>
 				{!isLoggedIn && <Navigate replace to="/login" />}
+				{buildAlter()}
 				<Container style={{width: "70vh"}} className="mt-3" >
 					<Form>
 					<Form.Group className="mb-3" controlId="formBasicEmail">
@@ -164,7 +202,7 @@ class Category extends Component {
 						</Form.Group>
 						<Form.Group className="mb-3" controlId="formBasicEmail">
 							<Form.Label>Наименование Категории</Form.Label>
-							<Form.Control type="text" placeholder="Введите название размера" value={this.state.name} onChange={this.onChangeName}/>
+							<Form.Control type="text" placeholder="Введите наименование категории" value={this.state.name} onChange={this.onChangeName}/>
 						</Form.Group>
 						<Form.Group className="mb-3" controlId="formBasicEmail">
 							<Form.Label>Уровень категории</Form.Label>

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import {Form, Button, Container, Col, Row, ListGroup, Table} from 'react-bootstrap';
+import {Form, Button, Container, Alert} from 'react-bootstrap';
 import ProductApiService from "../services/product-api.service";
 import { connect } from 'react-redux'
-import { useNavigate, Navigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, Navigate, useParams } from 'react-router-dom';
 
 
 class Brand extends Component {
@@ -15,6 +15,9 @@ class Brand extends Component {
 		file: "",
 		fileExtension: "",
 		description: "",
+		//alert
+		alertVariant: "",
+		alertText: "",
 	  };
 	  this.onChangeName = this.onChangeName.bind(this);
 	  this.onChangeDescription = this.onChangeDescription.bind(this);
@@ -23,6 +26,20 @@ class Brand extends Component {
 	  this.handleCreate = this.handleCreate.bind(this);
 	  this.handleDelete = this.handleDelete.bind(this);
 	  this.handleDeletePhoto= this.handleDeletePhoto.bind(this);
+	  this.handleCloseAlert = this.handleCloseAlert.bind(this);
+	  this.handleCreateAlert = this.handleCreateAlert.bind(this);
+	}
+	handleCreateAlert(text, variant) {
+		this.setState({
+			alertText: text,
+			alertVariant: variant,
+		});
+		window.scrollTo(0, 0);
+	}
+	handleCloseAlert() {
+		this.setState({
+			alertText: "",
+		});
 	}
 	onChangeName(e) {
 		this.setState({
@@ -42,7 +59,7 @@ class Brand extends Component {
 				return Promise.resolve();
 			},
 			(error) => {
-				this.props.navigate("/brands");
+				this.handleCreateAlert("Произошла ошибка при удалении бренда: "+ error, "danger");
 				console.log('ошибка DeleteBrand',error)
 				return Promise.reject();
 			});
@@ -60,7 +77,6 @@ class Brand extends Component {
 		e.preventDefault(); //предотвращение поведения по умолчанию.
 		let reader = new FileReader();
 		let file = e.target.files[0];
-		console.log(file)
 	
 		reader.onloadend = () => {
 	
@@ -81,11 +97,17 @@ class Brand extends Component {
 	handleUpdate(e) {
 		e.preventDefault(); //предотвращение поведения по умолчанию.
 		
-		ProductApiService.UpdateBrand(this.state.id, this.state.name, this.state.description, this.state.file, this.state.fileExtension).then(
+		let deletePhoto = false
+		if (this.state.url === "") {
+			deletePhoto = true
+		}
+		ProductApiService.UpdateBrand(this.state.id, this.state.name, this.state.description, this.state.file, this.state.fileExtension, deletePhoto).then(
 			() => {
+				this.handleCreateAlert("Информация о бренде успешно обновлена", "success");
 				return Promise.resolve();
 			},
 			(error) => {
+				this.handleCreateAlert("Произошла ошибка при обновлении бренда: "+ error, "danger");
 				console.log('ошибка UpdateBrand',error)
 				return Promise.reject();
 			});
@@ -99,6 +121,7 @@ class Brand extends Component {
 					id: response.id,
 				});
 				this.props.navigate("/brands/" + response.id);
+				this.handleCreateAlert("Бренд успешно создан", "success");
 				return Promise.resolve();
 			},
 			(error) => {
@@ -109,7 +132,7 @@ class Brand extends Component {
 	}
 	componentDidMount(){
 		const { id } = this.props.params;
-		if (id != "new") {
+		if (id !== "new") {
 			ProductApiService.GetBrand(id).then(
 				(response) => {
 					this.setState({
@@ -128,7 +151,7 @@ class Brand extends Component {
 		}
 	}
 	render() {
-		const {isLoggedIn, message } = this.props;
+		const {isLoggedIn } = this.props;
 		
 		const BuildButtons = () => {
 			const {id} = this.props.params;
@@ -153,9 +176,23 @@ class Brand extends Component {
 			}
 		}
 
+		const buildAlter = () => {
+			if (this.state.alertText !== "") {
+				return (
+					<>
+						<Alert variant={this.state.alertVariant} onClose={this.handleCloseAlert} dismissible>
+						{this.state.alertText}
+						</Alert>
+					  </>
+				);
+			}
+			return (null);
+		}
+
 		return (
 			<>
 				{!isLoggedIn && <Navigate replace to="/login" />}
+				{buildAlter()}
 				<Container style={{width: "70vh"}} className="mt-3" >
 					<Form>
 					<Form.Group className="mb-3" controlId="formBasicEmail">
@@ -164,11 +201,11 @@ class Brand extends Component {
 						</Form.Group>
 						<Form.Group className="mb-3" controlId="formBasicEmail">
 							<Form.Label>Наименование бренда</Form.Label>
-							<Form.Control type="text" placeholder="Введите название размера" value={this.state.name} onChange={this.onChangeName}/>
+							<Form.Control type="text" placeholder="Введите наименование" value={this.state.name} onChange={this.onChangeName}/>
 						</Form.Group>
 						<Form.Group className="mb-3" controlId="formBasicEmail">
 							<Form.Label>Описание</Form.Label>
-							<Form.Control  as="textarea" rows={3} placeholder="Введите название описание" value={this.state.description} onChange={this.onChangeDescription}/>
+							<Form.Control  as="textarea" rows={3} placeholder="Введите описание" value={this.state.description} onChange={this.onChangeDescription}/>
 						</Form.Group>
 						{this.state.url === "" && <>
 							<Form.Group className="mb-3" controlId="formBasicEmail">
@@ -176,7 +213,7 @@ class Brand extends Component {
 								<Form.Control type="file" onChange={this.handleUploadFile}/>
 							</Form.Group>
 						</>}
-						{this.state.url != "" && <>
+						{this.state.url !== "" && <>
 						<img
      						 src={this.state.url}
       						style={{ maxWidth: '24rem' }}
